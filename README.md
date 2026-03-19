@@ -104,41 +104,25 @@ This skill requires a **Stitch MCP Server** connection. Below are the setup step
 
 本技能需要 **Stitch MCP Server** 连接，以下是配置步骤。
 
-### Step 1: Get Stitch Access / 获取 Stitch 访问权限
+### Step 1: Get Stitch API Key / 获取 Stitch API Key
 
 1. Visit [stitch.withgoogle.com](https://stitch.withgoogle.com/) and sign in with your Google account
    访问 [stitch.withgoogle.com](https://stitch.withgoogle.com/) 并用 Google 账号登录
-2. You need a Google Cloud project. Create one at [console.cloud.google.com](https://console.cloud.google.com/) if you don't have one
-   需要 Google Cloud 项目，如没有请在 [console.cloud.google.com](https://console.cloud.google.com/) 创建
+2. Click your avatar -> **Stitch Settings** -> **API Keys**
+   点击头像 -> **Stitch Settings** -> **API Keys**
+3. Create a new key and copy it
+   创建新 Key 并复制
 
-### Step 2: Install & Authenticate Stitch MCP / 安装并认证 Stitch MCP
+### Step 2: Configure Claude Code MCP / 配置 Claude Code MCP
 
-We recommend [`@_davideast/stitch-mcp`](https://github.com/nichochar/stitch-mcp) (maintained by Google DevRel):
+Add [stitch-mcp](https://www.npmjs.com/package/@_davideast/stitch-mcp) (maintained by Google DevRel) to your MCP configuration:
 
-推荐使用 [`@_davideast/stitch-mcp`](https://github.com/nichochar/stitch-mcp)（Google DevRel 官方维护）：
-
-```bash
-# Install gcloud CLI if not already installed / 如未安装 gcloud CLI 先安装
-# https://cloud.google.com/sdk/docs/install
-
-# Login to Google Cloud / 登录 Google Cloud
-gcloud auth login
-gcloud auth application-default login
-
-# Initialize Stitch MCP (one-time OAuth) / 初始化 Stitch MCP（一次性 OAuth 认证）
-npx @_davideast/stitch-mcp init
-```
-
-### Step 3: Configure Claude Code / 配置 Claude Code
-
-Add Stitch MCP to Claude Code's MCP configuration:
-
-将 Stitch MCP 添加到 Claude Code 的 MCP 配置中：
+将 [stitch-mcp](https://www.npmjs.com/package/@_davideast/stitch-mcp)（Google DevRel 官方维护）添加到 MCP 配置：
 
 **Option A: Via CLI / 命令行方式：**
 
 ```bash
-claude mcp add stitch -- npx @_davideast/stitch-mcp proxy
+claude mcp add stitch -e STITCH_API_KEY=your_api_key_here -- npx @_davideast/stitch-mcp proxy
 ```
 
 **Option B: Via config file / 配置文件方式：**
@@ -152,24 +136,23 @@ Edit `~/.claude/settings.json` (or project-level `.mcp.json`):
   "mcpServers": {
     "stitch": {
       "command": "npx",
-      "args": ["@_davideast/stitch-mcp", "proxy"]
+      "args": ["@_davideast/stitch-mcp", "proxy"],
+      "env": {
+        "STITCH_API_KEY": "<your_api_key_here>"
+      }
     }
   }
 }
 ```
 
-### Step 4: Verify / 验证
+> **Note / 注意**: Never commit your API key to version control. Use environment variables or a `.env` file.
+> 不要把 API Key 提交到版本控制。请使用环境变量或 `.env` 文件。
 
-Restart Claude Code, then check available MCP tools:
+### Step 3: Verify / 验证
 
-重启 Claude Code，检查 MCP 工具是否可用：
+Restart Claude Code and confirm these MCP tools are available:
 
-```bash
-# List available tools / 列出可用工具
-npx @_davideast/stitch-mcp tool
-```
-
-You should see these tools available / 应看到以下工具可用：
+重启 Claude Code，确认以下 MCP 工具可用：
 
 - `generate_screen_from_text`
 - `get_screen`
